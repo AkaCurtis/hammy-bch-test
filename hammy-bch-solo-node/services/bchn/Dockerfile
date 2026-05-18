@@ -16,8 +16,14 @@ RUN git ls-remote --heads --tags ${BCHN_REPO} ${BCHN_REF} && \
 RUN if grep -q "add_subdirectory(qt)" src/CMakeLists.txt; then \
       sed -i '/add_subdirectory(qt)/c\if(BUILD_GUI)\n  add_subdirectory(qt)\nendif()' src/CMakeLists.txt; \
     fi && \
+    if grep -q "add_subdirectory(test)" src/CMakeLists.txt; then \
+      sed -i '/add_subdirectory(test)/c\if(BUILD_TESTS)\n  add_subdirectory(test)\nendif()' src/CMakeLists.txt; \
+    fi && \
     if [ -f src/qt/CMakeLists.txt ]; then \
       sed -i '1i if(NOT BUILD_GUI)\n  return()\nendif()\n' src/qt/CMakeLists.txt; \
+    fi && \
+    if [ -f src/test/CMakeLists.txt ]; then \
+      sed -i '1i if(NOT BUILD_TESTS)\n  return()\nendif()\n' src/test/CMakeLists.txt; \
     fi
 RUN cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
