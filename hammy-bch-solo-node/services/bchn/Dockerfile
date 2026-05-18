@@ -13,6 +13,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /src
 RUN git ls-remote --heads --tags ${BCHN_REPO} ${BCHN_REF} && \
     git clone --depth 1 --branch ${BCHN_REF} ${BCHN_REPO} .
+RUN if grep -q "add_subdirectory(qt)" src/CMakeLists.txt; then \
+      sed -i '/add_subdirectory(qt)/c\if(BUILD_GUI)\n  add_subdirectory(qt)\nendif()' src/CMakeLists.txt; \
+    fi && \
+    if [ -f src/qt/CMakeLists.txt ]; then \
+      sed -i '1i if(NOT BUILD_GUI)\n  return()\nendif()\n' src/qt/CMakeLists.txt; \
+    fi
 RUN cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/opt/bchn \
