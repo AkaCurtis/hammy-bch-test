@@ -1,7 +1,7 @@
 FROM debian:bookworm AS build
 
 ARG BCHN_REPO=https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node.git
-ARG BCHN_REF=v29.0.1
+ARG BCHN_REF=v28.0.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git build-essential cmake ninja-build pkg-config python3 bison \
@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
-RUN git clone --depth 1 --branch ${BCHN_REF} ${BCHN_REPO} .
+RUN git ls-remote --heads --tags ${BCHN_REPO} ${BCHN_REF} && \
+    git clone --depth 1 --branch ${BCHN_REF} ${BCHN_REPO} .
 RUN cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/opt/bchn \

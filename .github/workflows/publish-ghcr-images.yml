@@ -14,6 +14,10 @@ on:
         description: "Git ref to build from"
         required: true
         default: "main"
+      bchn_ref:
+        description: "Bitcoin Cash Node ref to build"
+        required: true
+        default: "v28.0.0"
 
 permissions:
   contents: read
@@ -29,6 +33,7 @@ jobs:
     outputs:
       version: ${{ steps.vars.outputs.version }}
       git_ref: ${{ steps.vars.outputs.git_ref }}
+      bchn_ref: ${{ steps.vars.outputs.bchn_ref }}
     steps:
       - id: vars
         shell: bash
@@ -36,10 +41,12 @@ jobs:
           if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
             echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
             echo "git_ref=${{ github.event.inputs.git_ref }}" >> "$GITHUB_OUTPUT"
+            echo "bchn_ref=${{ github.event.inputs.bchn_ref }}" >> "$GITHUB_OUTPUT"
           else
             version="${GITHUB_REF_NAME#v}"
             echo "version=$version" >> "$GITHUB_OUTPUT"
             echo "git_ref=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "bchn_ref=v28.0.0" >> "$GITHUB_OUTPUT"
           fi
 
   publish:
@@ -51,10 +58,14 @@ jobs:
         include:
           - image_name: hammy-bch-solo-node-bchn
             context: ./hammy-bch-solo-node/services/bchn
+            build_args: |
+              BCHN_REF=${{ needs.prepare.outputs.bchn_ref }}
           - image_name: hammy-bch-solo-node-ckpool
             context: ./hammy-bch-solo-node/services/ckpool
+            build_args: ""
           - image_name: hammy-bch-solo-node-web
             context: ./hammy-bch-solo-node/web
+            build_args: ""
     steps:
       - uses: actions/checkout@v4
         with:
@@ -84,5 +95,6 @@ jobs:
           file: ${{ matrix.context }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: ${{ matrix.build_args }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
