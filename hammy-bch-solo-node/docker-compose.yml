@@ -4,7 +4,7 @@ services:
   app_proxy:
     image: ghcr.io/getumbrel/umbrel-app-proxy:latest
     environment:
-      APP_HOST: bch-solo-node-app
+      APP_HOST: hammy-bch-solo-node_app_1
       APP_PORT: 3000
       JWT_SECRET: "${JWT_SECRET}"
     networks:
@@ -65,13 +65,6 @@ services:
     depends_on:
       - bchn
       - ckpool
-    networks:
-      default:
-        aliases:
-          - bch-solo-node-app
-      umbrel_main_network:
-        aliases:
-          - bch-solo-node-app
     volumes:
       - ${APP_DATA_DIR}/data:/data
     environment:
