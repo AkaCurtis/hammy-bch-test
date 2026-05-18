@@ -2,7 +2,7 @@ manifestVersion: 1
 id: hammy-bch-solo-node
 category: bitcoin
 name: BCH Solo Node
-version: "0.2.0"
+version: "0.2.1"
 tagline: BCH node + solo pool
 description: >-
   Run a Bitcoin Cash full node and integrated solo ckpool stack with a clean,
@@ -15,8 +15,8 @@ description: >-
     - Umbrel widgets for sync and pool status
 
   Miner connection:
-    - URL: `stratum+tcp://<your-host-ip>:4633`
-    - Username: `workername` or `walletAddress.workername`
+    - URL: stratum+tcp://<your-host-ip>:4633
+    - Username: workername or walletAddress.workername
     - Password: anything
 developer: AkaCurtis
 website: https://github.com/AkaCurtis/hammy-bch-test
@@ -25,41 +25,33 @@ support: https://github.com/AkaCurtis/hammy-bch-test/issues
 dependencies: []
 port: 21212
 icon: icon.svg
-path: ""
-defaultUsername: ""
-defaultPassword: ""
 widgets:
-  - id: "sync"
-    type: "text-with-progress"
-    refresh: "5s"
-    endpoint: "bch-solo-node-app:3000/api/widget/sync"
-    link: ""
+  - id: sync
+    type: text-with-progress
+    refresh: 5s
+    endpoint: http://bch-solo-node-app:3000/api/widget/sync
     example:
-      type: "text-with-progress"
-      link: ""
-      title: "BCH sync"
+      type: text-with-progress
+      title: BCH sync
       text: "83%"
-      progressLabel: "In progress"
+      progressLabel: In progress
       progress: 0.83
-  - id: "pool"
-    type: "three-stats"
-    refresh: "30s"
-    endpoint: "bch-solo-node-app:3000/api/widget/pool"
-    link: ""
+  - id: pool
+    type: three-stats
+    refresh: 30s
+    endpoint: http://bch-solo-node-app:3000/api/widget/pool
     example:
-      type: "three-stats"
-      link: ""
+      type: three-stats
       items:
-        - title: "Hashrate"
+        - title: Hashrate
           text: "1.2"
-          subtext: "TH/s"
-        - title: "Workers"
+          subtext: TH/s
+        - title: Workers
           text: "2"
-        - title: "Best Share"
+        - title: Best Share
           text: "21"
-          subtext: "G"
+          subtext: G
 backupIgnore:
   - data/node/blocks
   - data/node/chainstate
   - data/node/indexes
-submitter: OpenAI
