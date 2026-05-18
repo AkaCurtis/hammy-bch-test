@@ -2,6 +2,7 @@ version: "3.7"
 
 services:
   app_proxy:
+    image: ghcr.io/getumbrel/umbrel-app-proxy:latest
     environment:
       APP_HOST: bch-solo-node-app
       APP_PORT: 3000
