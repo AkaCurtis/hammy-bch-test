@@ -454,15 +454,28 @@ def widget_sync():
 
 
 def widget_pool():
-    summary = pool_summary()
-    return {
-        "type": "three-stats",
-        "items": [
-            {"title": "Hashrate", "text": str(summary.get("hashrate_ths") or "-"), "subtext": "TH/s"},
-            {"title": "Workers", "text": str(summary.get("workers") or 0)},
-            {"title": "Best Share", "text": str(summary.get("best_share_since_block") or "-")},
-        ],
-    }
+    try:
+        summary = pool_summary()
+        hashrate = summary.get("hashrate_ths")
+        workers = summary.get("workers")
+        best_share = summary.get("best_share_since_block")
+        return {
+            "type": "three-stats",
+            "items": [
+                {"title": "Hashrate", "text": str(hashrate) if hashrate is not None else "-", "subtext": "TH/s"},
+                {"title": "Workers", "text": str(workers or 0)},
+                {"title": "Best Share", "text": str(best_share) if best_share is not None else "-"},
+            ],
+        }
+    except Exception:
+        return {
+            "type": "three-stats",
+            "items": [
+                {"title": "Hashrate", "text": "-", "subtext": "TH/s"},
+                {"title": "Workers", "text": "0"},
+                {"title": "Best Share", "text": "-"},
+            ],
+        }
 
 
 class Handler(SimpleHTTPRequestHandler):
