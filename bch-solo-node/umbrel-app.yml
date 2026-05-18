@@ -1,5 +1,5 @@
 manifestVersion: 1
-id: bch-solo-node
+id: hammy-bch-solo-node
 category: bitcoin
 name: BCH Solo Node
 version: "0.2.0"
