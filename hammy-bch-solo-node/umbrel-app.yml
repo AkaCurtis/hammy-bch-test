@@ -2,21 +2,30 @@ manifestVersion: 1
 id: hammy-bch-solo-node
 category: bitcoin
 name: BCH Solo Node
-version: "0.2.2"
+version: '0.2.3'
 tagline: BCH node + solo pool
 description: >-
   Run a Bitcoin Cash full node and integrated solo ckpool stack with a clean,
   user-friendly dashboard.
 
+
   Features:
+
     - BCHN full node with pruning and txindex controls
+
     - Integrated ckpool solo mining with payout address and vardiff settings
+
     - Worker visibility, pool status, block-hit history, and round luck tracking
+
     - Umbrel widgets for sync and pool status
 
+
   Miner connection:
+
     - URL: stratum+tcp://<your-host-ip>:4633
+
     - Username: workername or walletAddress.workername
+
     - Password: anything
 developer: AkaCurtis
 website: https://github.com/AkaCurtis/hammy-bch-test
@@ -34,7 +43,7 @@ widgets:
     example:
       type: text-with-progress
       title: BCH sync
-      text: "83%"
+      text: '83%'
       progressLabel: In progress
       progress: 0.83
   - id: pool
@@ -45,12 +54,12 @@ widgets:
       type: three-stats
       items:
         - title: Hashrate
-          text: "1.2"
+          text: '1.2'
           subtext: TH/s
         - title: Workers
-          text: "2"
+          text: '2'
         - title: Best Share
-          text: "21"
+          text: '21'
           subtext: G
 backupIgnore:
   - data/node/blocks
