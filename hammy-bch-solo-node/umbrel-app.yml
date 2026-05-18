@@ -2,7 +2,7 @@ manifestVersion: 1
 id: hammy-bch-solo-node
 category: bitcoin
 name: BCH Solo Node
-version: "0.2.1"
+version: "0.2.2"
 tagline: BCH node + solo pool
 description: >-
   Run a Bitcoin Cash full node and integrated solo ckpool stack with a clean,
@@ -22,6 +22,7 @@ developer: AkaCurtis
 website: https://github.com/AkaCurtis/hammy-bch-test
 repo: https://github.com/AkaCurtis/hammy-bch-test
 support: https://github.com/AkaCurtis/hammy-bch-test/issues
+gallery: []
 dependencies: []
 port: 21212
 icon: icon.svg
