@@ -8,8 +8,7 @@ services:
       - umbrel_main_network
 
   bchn:
-    build:
-      context: ${APP_DATA_DIR}/services/bchn
+    image: ghcr.io/akacurtis/hammy-bch-solo-node-bchn:0.3.0
     user: "1000:1000"
     restart: unless-stopped
     stop_grace_period: 15m30s
@@ -33,8 +32,7 @@ services:
       start_period: 2m
 
   ckpool:
-    build:
-      context: ${APP_DATA_DIR}/services/ckpool
+    image: ghcr.io/akacurtis/hammy-bch-solo-node-ckpool:0.3.0
     user: "1000:1000"
     depends_on:
       - bchn
@@ -54,8 +52,7 @@ services:
       PAYOUT_ADDRESS: "CHANGEME_BCH_PAYOUT_ADDRESS"
 
   app:
-    build:
-      context: ${APP_DATA_DIR}/web
+    image: ghcr.io/akacurtis/hammy-bch-solo-node-web:0.3.0
     user: "1000:1000"
     restart: on-failure
     stop_grace_period: 30s
@@ -77,8 +74,6 @@ services:
       CKPOOL_CONF_PATH: "/data/pool/config/ckpool.conf"
       APP_CHANNEL: "BETA"
       APP_VERSION_SUFFIX: ""
-      BCHN_IMAGE: "local/bch-solo-node-bchn"
-      CKPOOL_IMAGE: "local/bch-solo-node-ckpool"
       STATIC_DIR: "/app/static"
       SUPPORT_CHECKIN_URL: ""
       SUPPORT_TICKET_URL: ""

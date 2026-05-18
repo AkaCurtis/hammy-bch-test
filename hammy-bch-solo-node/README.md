@@ -2,9 +2,8 @@
 
 This app is packaged as its own Umbrel app and no longer depends on the reference app's code or image names:
 
-- `init` seeds and repairs BCHN + ckpool config
-- `bchn` builds and runs Bitcoin Cash Node from upstream source
-- `ckpool` builds and runs ckpool from upstream source
+- `bchn` runs Bitcoin Cash Node from a prebuilt GHCR image
+- `ckpool` runs ckpool from a prebuilt GHCR image
 - `app` serves the BCH Solo Node dashboard and API
 - `app_proxy` exposes the app inside Umbrel
 
@@ -18,8 +17,21 @@ This app is packaged as its own Umbrel app and no longer depends on the referenc
 
 ## Notes
 
-- BCHN and ckpool are still upstream open-source projects, but they are now built through local Dockerfiles in this repository rather than pulled from third-party packaged images
+- Images are published to GitHub Container Registry through `.github/workflows/publish-ghcr-images.yml`
+- Umbrel installs should pull prebuilt images instead of compiling BCHN and ckpool on-device
 - Support and telemetry endpoints are disabled by default
+
+## Releasing images
+
+1. Update `hammy-bch-solo-node/umbrel-app.yml`, `hammy-bch-solo-node/docker-compose.yml`, and `hammy-bch-solo-node/web/server.py` to the new version.
+2. Push the commit to GitHub.
+3. Publish the images either by:
+   - creating a Git tag like `v0.3.0`, or
+   - running the `Publish GHCR Images` workflow manually with a version input
+4. After the GHCR publish completes, Umbrel can install the app by pulling:
+   - `ghcr.io/akacurtis/hammy-bch-solo-node-bchn:<version>`
+   - `ghcr.io/akacurtis/hammy-bch-solo-node-ckpool:<version>`
+   - `ghcr.io/akacurtis/hammy-bch-solo-node-web:<version>`
 
 ## App structure
 
