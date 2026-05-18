@@ -1,0 +1,24 @@
+server=1
+txindex=0
+prune=0
+
+# Select one network by uncommenting it if needed.
+# testnet=1
+# regtest=1
+
+# Bitcoin Cash Node ports
+port=${BCH_P2P_PORT}
+rpcport=${BCH_RPC_PORT}
+
+# RPC access for local containers
+rpcuser=${RPC_USER}
+rpcpassword=${RPC_PASSWORD}
+rpcbind=0.0.0.0
+rpcallowip=127.0.0.1/32
+rpcallowip=${APPS_SUBNET}
+rpcallowip=10.0.0.0/8
+rpcallowip=172.16.0.0/12
+rpcallowip=192.168.0.0/16
+
+# ZMQ block notifications for the local pool
+zmqpubhashblock=tcp://0.0.0.0:${BCH_ZMQ_HASHBLOCK_PORT}

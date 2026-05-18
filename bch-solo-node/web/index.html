@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BCH Solo Node</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <div class="topbar__title">BCH Solo Node</div>
+          <div class="topbar__subtitle">BCHN, ckpool, and solo mining controls</div>
+        </div>
+        <div class="topbar__meta">
+          <div class="meta-card">
+            <span class="meta-card__label">Miner URL</span>
+            <strong id="stratum-endpoint">stratum+tcp://host:4633</strong>
+            <p id="stratum-status">Waiting for payout address and active workers.</p>
+          </div>
+          <div class="meta-card">
+            <span class="meta-card__label">Next Step</span>
+            <strong id="next-step-title">Set payout address</strong>
+            <p id="next-step-copy">Configure a BCH payout address, save, then restart the app to apply ckpool changes.</p>
+          </div>
+        </div>
+      </header>
+
+      <nav class="tab-nav" aria-label="Dashboard sections">
+        <button class="tab-button is-active" type="button" data-tab="home">Home</button>
+        <button class="tab-button" type="button" data-tab="pool">Pool</button>
+        <button class="tab-button" type="button" data-tab="luck">Luck</button>
+        <button class="tab-button" type="button" data-tab="blocks">Blocks</button>
+        <button class="tab-button" type="button" data-tab="settings">Settings</button>
+      </nav>
+
+      <main class="tab-content">
+        <section class="tab-pane is-active" id="tab-home">
+          <div class="dashboard">
+            <section class="panel panel--wide">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Overview</span>
+                  <h2>Node and pool status</h2>
+                </div>
+                <button id="refresh-button" class="button button--ghost" type="button">Refresh</button>
+              </div>
+              <div class="command-bar">
+                <span class="command-bar__label">Miner URL</span>
+                <code id="stratum-endpoint-inline">stratum+tcp://host:4633</code>
+              </div>
+              <div class="metric-grid">
+                <article class="metric-card">
+                  <span>Chain Sync</span>
+                  <strong id="metric-sync">-</strong>
+                  <p id="metric-sync-meta">Waiting for node status</p>
+                </article>
+                <article class="metric-card">
+                  <span>Node Peers</span>
+                  <strong id="metric-peers">-</strong>
+                  <p id="metric-chain">-</p>
+                </article>
+                <article class="metric-card">
+                  <span>Pool Hashrate</span>
+                  <strong id="metric-hashrate">-</strong>
+                  <p id="metric-hashrate-meta">Current pool window</p>
+                </article>
+                <article class="metric-card">
+                  <span>Workers</span>
+                  <strong id="metric-workers">-</strong>
+                  <p id="metric-workers-meta">Active miners</p>
+                </article>
+                <article class="metric-card">
+                  <span>Best Share</span>
+                  <strong id="metric-bestshare">-</strong>
+                  <p id="metric-bestshare-meta">Since latest block</p>
+                </article>
+                <article class="metric-card">
+                  <span>Last Block</span>
+                  <strong id="metric-lastblock">None</strong>
+                  <p id="metric-lastblock-meta">No solved block recorded yet</p>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-pane" id="tab-pool">
+          <div class="dashboard">
+            <section class="panel panel--wide">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Workers</span>
+                  <h2>Connected miner activity</h2>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Worker</th>
+                      <th>Hashrate</th>
+                      <th>Last Share</th>
+                      <th>Best Since Block</th>
+                    </tr>
+                  </thead>
+                  <tbody id="workers-body">
+                    <tr><td colspan="4" class="empty">Waiting for worker data</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="note" id="pool-note">Worker status not loaded yet.</div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-pane" id="tab-luck">
+          <div class="dashboard">
+            <section class="panel panel--wide">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Round Luck</span>
+                  <h2>Current round and recent outcomes</h2>
+                </div>
+                <button class="button button--ghost" id="reset-luck" type="button">Reset Round</button>
+              </div>
+              <div class="metric-grid metric-grid--compact">
+                <article class="metric-card">
+                  <span>Current Effort</span>
+                  <strong id="luck-effort">-</strong>
+                  <p id="luck-since">-</p>
+                </article>
+                <article class="metric-card">
+                  <span>Round Shares</span>
+                  <strong id="luck-shares">-</strong>
+                  <p id="luck-total-diff">-</p>
+                </article>
+                <article class="metric-card">
+                  <span>Recent Avg Luck</span>
+                  <strong id="luck-average">-</strong>
+                  <p id="luck-range">-</p>
+                </article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-pane" id="tab-blocks">
+          <div class="dashboard">
+            <section class="panel panel--wide">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Blocks</span>
+                  <h2>Solved blocks and history scan</h2>
+                </div>
+                <div class="actions actions--inline">
+                  <button class="button button--ghost" id="toggle-backscan" type="button">Toggle History Scan</button>
+                  <button class="button button--ghost" id="rescan-blocks" type="button">Rescan History</button>
+                </div>
+              </div>
+              <div class="blocks-summary" id="blocks-summary">No block history loaded yet.</div>
+              <ul class="block-list" id="block-list">
+                <li class="empty">Waiting for block data</li>
+              </ul>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-pane" id="tab-settings">
+          <div class="dashboard">
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Node</span>
+                  <h2>BCHN settings</h2>
+                </div>
+              </div>
+              <form id="node-form" class="form-grid">
+                <label class="field">
+                  <span>Network</span>
+                  <select id="network">
+                    <option value="mainnet">Mainnet</option>
+                    <option value="testnet">Testnet</option>
+                    <option value="regtest">Regtest</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Prune target (MiB)</span>
+                  <input id="prune" type="number" min="0" step="1" />
+                  <small>`0` keeps a full archival node. Pruned mode must be `0` or at least `550`.</small>
+                </label>
+                <label class="toggle">
+                  <div>
+                    <span>Enable txindex</span>
+                    <small>Required for some deeper chain queries. Increases disk usage.</small>
+                  </div>
+                  <input id="txindex" type="checkbox" />
+                </label>
+                <div class="actions">
+                  <button class="button" type="submit">Save Node Settings</button>
+                </div>
+              </form>
+              <div class="note" id="node-note">Node status not loaded yet.</div>
+            </section>
+
+            <section class="panel">
+              <div class="panel__header">
+                <div>
+                  <span class="eyebrow">Mining</span>
+                  <h2>Solo mining settings</h2>
+                </div>
+              </div>
+              <form id="pool-form" class="form-grid">
+                <label class="field">
+                  <span>Payout address</span>
+                  <input id="payout-address" type="text" autocomplete="off" />
+                  <small>CashAddr and legacy BCH addresses are accepted by the backend.</small>
+                </label>
+                <label class="field">
+                  <span>Minimum difficulty</span>
+                  <input id="mindiff" type="number" min="1" step="1" />
+                </label>
+                <label class="field">
+                  <span>Starting difficulty</span>
+                  <input id="startdiff" type="number" min="1" step="1" />
+                </label>
+                <label class="field">
+                  <span>Maximum difficulty</span>
+                  <input id="maxdiff" type="number" min="0" step="1" />
+                  <small>`0` leaves the vardiff ceiling open.</small>
+                </label>
+                <div class="preset-row">
+                  <button class="chip" data-preset="cpu" type="button">CPU / Tiny</button>
+                  <button class="chip" data-preset="single" type="button">Single ASIC</button>
+                  <button class="chip" data-preset="rack" type="button">Small Rack</button>
+                  <button class="chip" data-preset="farm" type="button">Farm</button>
+                </div>
+                <div class="actions">
+                  <button class="button" type="submit">Save Pool Settings</button>
+                  <button class="button button--ghost" id="reset-bestshare" type="button">Reset Best Share</button>
+                </div>
+              </form>
+              <div class="note-list">
+                <div class="note-card">
+                  <strong>Pool changes</strong>
+                  <p>ckpool reads its config on startup. Restart the app after payout or vardiff changes.</p>
+                </div>
+                <div class="note-card">
+                  <strong>Miner connect string</strong>
+                  <p>Use `stratum+tcp://&lt;your-host-ip&gt;:4633` with any password and your worker name as username.</p>
+                </div>
+                <div class="note-card">
+                  <strong>Node changes</strong>
+                  <p>Pruning and txindex updates change `bitcoin.conf` and may require a restart or chainstate rebuild.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: bch-solo-node-app
+      APP_PORT: 3000
+      JWT_SECRET: "${JWT_SECRET}"
+    networks:
+      - umbrel_main_network
+
+  init:
+    image: alpine:3.22.1
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+      - ${APP_DATA_DIR}:/appdata
+      - ./data/templates:/seed-templates:ro
+    environment:
+      APPS_SUBNET: "${NETWORK_IP}/16"
+      RPC_USER: "bch"
+      RPC_PASSWORD: "${APP_PASSWORD}"
+      BCH_P2P_PORT: "28333"
+      BCH_RPC_PORT: "28332"
+      BCH_ZMQ_HASHBLOCK_PORT: "28334"
+      PAYOUT_ADDRESS: "CHANGEME_BCH_PAYOUT_ADDRESS"
+    command:
+      - /bin/sh
+      - -ec
+      - |-
+        set -eu
+        apk add --no-cache envsubst >/dev/null
+
+        if [ -n "${JWT_SECRET:-}" ]; then
+          envfile="/appdata/.env"
+          tmp="/appdata/.env.tmp"
+          if [ -f "$$envfile" ]; then
+            grep -v '^JWT_SECRET=' "$$envfile" > "$$tmp" || true
+          else
+            : > "$$tmp"
+          fi
+          printf "JWT_SECRET=%s\n" "${JWT_SECRET}" >> "$$tmp"
+          chmod 600 "$$tmp" || true
+          chown 1000:1000 "$$tmp" || true
+          mv "$$tmp" "$$envfile"
+        fi
+
+        mkdir -p /data/node /data/pool/config /data/pool/www/pool /data/pool/www/users /data/templates
+        cp -f /seed-templates/* /data/templates/
+        chmod +x /data/templates/bchn-entrypoint.sh || true
+
+        touch /appdata/settings.yml
+        chown 1000:1000 /appdata/settings.yml || true
+
+        if [ ! -f /data/node/bitcoin.conf ]; then
+          envsubst < /data/templates/bitcoin.conf.template > /data/node/bitcoin.conf
+          chown -R 1000:1000 /data/node
+        fi
+
+        if [ ! -f /data/pool/config/ckpool.conf ]; then
+          envsubst < /data/templates/ckpool.conf.template > /data/pool/config/ckpool.conf
+          chown -R 1000:1000 /data/pool
+        fi
+
+  bchn:
+    build:
+      context: ./services/bchn
+    user: "1000:1000"
+    restart: unless-stopped
+    stop_grace_period: 15m30s
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    ports:
+      - "28333:28333/tcp"
+    volumes:
+      - ${APP_DATA_DIR}/data/node:/data
+      - ${APP_DATA_DIR}/data/templates/bchn-entrypoint.sh:/bchn-entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/bchn-entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "bitcoin-cli -datadir=/data getblockchaininfo >/dev/null 2>&1"]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 2m
+
+  ckpool:
+    build:
+      context: ./services/ckpool
+    entrypoint: ["/bin/sh"]
+    command:
+      - -ec
+      - |-
+        rm -f /tmp/ckpool/*.pid 2>/dev/null || true
+        if command -v ckpool >/dev/null 2>&1; then
+          exec ckpool -k -B -L -c /config/ckpool.conf
+        elif [ -x /bin/ckpool ]; then
+          exec /bin/ckpool -k -B -L -c /config/ckpool.conf
+        elif [ -x /usr/bin/ckpool ]; then
+          exec /usr/bin/ckpool -k -B -L -c /config/ckpool.conf
+        else
+          echo "ckpool binary not found in image"
+          exit 1
+        fi
+    user: "1000:1000"
+    depends_on:
+      - bchn
+    restart: on-failure
+    stop_grace_period: 30s
+    ports:
+      - "4633:3333/tcp"
+    volumes:
+      - ${APP_DATA_DIR}/data/pool/config:/config:ro
+      - ${APP_DATA_DIR}/data/pool/www:/www
+
+  app:
+    build:
+      context: ./web
+    user: "1000:1000"
+    restart: on-failure
+    stop_grace_period: 30s
+    depends_on:
+      - bchn
+      - ckpool
+    networks:
+      default:
+        aliases:
+          - bch-solo-node-app
+      umbrel_main_network:
+        aliases:
+          - bch-solo-node-app
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      NETWORK_IP: "${NETWORK_IP}"
+      BCH_RPC_HOST: "bchn"
+      BCH_RPC_PORT: "28332"
+      BCH_RPC_USER: "bch"
+      BCH_RPC_PASS: "${APP_PASSWORD}"
+      CKPOOL_STATUS_DIR: "/data/pool/www/pool"
+      CKPOOL_USERS_DIR: "/data/pool/www/users"
+      CKPOOL_LOG_PATH: "/data/pool/www/ckpool.log"
+      CKPOOL_SHARELOG_ROOT: "/data/pool/www"
+      CKPOOL_CONF_PATH: "/data/pool/config/ckpool.conf"
+      APP_CHANNEL: "BETA"
+      APP_VERSION_SUFFIX: ""
+      BCHN_IMAGE: "local/bch-solo-node-bchn"
+      CKPOOL_IMAGE: "local/bch-solo-node-ckpool"
+      STATIC_DIR: "/app/static"
+      SUPPORT_CHECKIN_URL: ""
+      SUPPORT_TICKET_URL: ""
+
+networks:
+  umbrel_main_network:
+    external: true
+    name: umbrel_main_network
