@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /src
 RUN git clone --depth 1 --branch ${CKPOOL_REF} ${CKPOOL_REPO} .
 RUN ./autogen.sh && \
-    ./configure --prefix=/opt/ckpool && \
+    CFLAGS="-fcommon" ./configure --prefix=/opt/ckpool && \
     make -j"$(nproc)" && \
     make install
 
