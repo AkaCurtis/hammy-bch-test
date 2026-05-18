@@ -235,7 +235,15 @@ function renderBlocks(blocks) {
 }
 
 async function refreshAll() {
-  const [nodeSettings, node, poolSettings, pool, workers, blocks, luck] = await Promise.all([
+  const [
+    nodeSettingsResult,
+    nodeResult,
+    poolSettingsResult,
+    poolResult,
+    workersResult,
+    blocksResult,
+    luckResult,
+  ] = await Promise.allSettled([
     fetchJson("/api/settings"),
     fetchJson("/api/node"),
     fetchJson("/api/pool/settings"),
@@ -245,6 +253,14 @@ async function refreshAll() {
     fetchJson("/api/luck"),
   ]);
 
+  const nodeSettings = nodeSettingsResult.status === "fulfilled" ? nodeSettingsResult.value : { network: "mainnet", prune: 0, txindex: 0 };
+  const node = nodeResult.status === "fulfilled" ? nodeResult.value : {};
+  const poolSettings = poolSettingsResult.status === "fulfilled" ? poolSettingsResult.value : {};
+  const pool = poolResult.status === "fulfilled" ? poolResult.value : {};
+  const workers = workersResult.status === "fulfilled" ? workersResult.value : { workers_details: [] };
+  const blocks = blocksResult.status === "fulfilled" ? blocksResult.value : { events: [], backscan: {} };
+  const luck = luckResult.status === "fulfilled" ? luckResult.value : { current: {}, summary: {}, recent: [] };
+
   renderOverview(node, pool, blocks);
   renderNodeSettings(nodeSettings, node);
   renderPoolSettings(poolSettings, pool);
@@ -253,6 +269,22 @@ async function refreshAll() {
   renderBlocks(blocks);
 
   window.__backscanEnabled = Boolean(blocks.backscan && blocks.backscan.enabled);
+
+  const errors = [
+    nodeSettingsResult,
+    nodeResult,
+    poolSettingsResult,
+    poolResult,
+    workersResult,
+    blocksResult,
+    luckResult,
+  ]
+    .filter((result) => result.status === "rejected")
+    .map((result) => result.reason && result.reason.message ? result.reason.message : "Request failed");
+
+  if (errors.length) {
+    showToast(`Partial data unavailable: ${errors[0]}`);
+  }
 }
 
 async function postJson(url, body) {
@@ -345,11 +377,12 @@ function wireActions() {
 async function bootstrap() {
   wireActions();
   setActiveTab("home");
-  try {
-    await refreshAll();
-  } catch (error) {
-    showToast(error.message || "Initial load failed.");
-  }
+  await refreshAll();
+  window.setInterval(() => {
+    refreshAll().catch((error) => {
+      showToast(error.message || "Background refresh failed.");
+    });
+  }, 15000);
 }
 
 bootstrap();
