@@ -18,10 +18,14 @@ RUN ./autogen.sh && \
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates libcurl4 libjansson4 libssl3 zlib1g && \
+    ca-certificates libcurl4 libjansson4 libssl3 zlib1g gettext-base && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/ckpool /opt/ckpool
+COPY entrypoint.sh /usr/local/bin/ckpool-entrypoint.sh
 ENV PATH="/opt/ckpool/bin:${PATH}"
 
+RUN chmod 755 /usr/local/bin/ckpool-entrypoint.sh
+
 USER 1000:1000
+ENTRYPOINT ["/usr/local/bin/ckpool-entrypoint.sh"]

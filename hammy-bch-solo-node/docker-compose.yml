@@ -10,12 +10,17 @@ services:
     networks:
       - umbrel_main_network
 
-  init:
-    image: alpine:3.22.1
+  bchn:
+    build:
+      context: ./services/bchn
+    user: "1000:1000"
+    restart: unless-stopped
+    stop_grace_period: 15m30s
+    ports:
+      - "28333:28333/tcp"
     volumes:
-      - ${APP_DATA_DIR}/data:/data
-      - ${APP_DATA_DIR}:/appdata
-      - ./data/templates:/seed-templates:ro
+      - ${APP_DATA_DIR}/data/node:/data
+      - ./data/templates:/templates:ro
     environment:
       APPS_SUBNET: "${NETWORK_IP}/16"
       RPC_USER: "bch"
@@ -23,60 +28,6 @@ services:
       BCH_P2P_PORT: "28333"
       BCH_RPC_PORT: "28332"
       BCH_ZMQ_HASHBLOCK_PORT: "28334"
-      PAYOUT_ADDRESS: "CHANGEME_BCH_PAYOUT_ADDRESS"
-    command:
-      - /bin/sh
-      - -ec
-      - |-
-        set -eu
-        apk add --no-cache envsubst >/dev/null
-
-        if [ -n "${JWT_SECRET:-}" ]; then
-          envfile="/appdata/.env"
-          tmp="/appdata/.env.tmp"
-          if [ -f "$$envfile" ]; then
-            grep -v '^JWT_SECRET=' "$$envfile" > "$$tmp" || true
-          else
-            : > "$$tmp"
-          fi
-          printf "JWT_SECRET=%s\n" "${JWT_SECRET}" >> "$$tmp"
-          chmod 600 "$$tmp" || true
-          chown 1000:1000 "$$tmp" || true
-          mv "$$tmp" "$$envfile"
-        fi
-
-        mkdir -p /data/node /data/pool/config /data/pool/www/pool /data/pool/www/users /data/templates
-        cp -f /seed-templates/* /data/templates/
-        chmod +x /data/templates/bchn-entrypoint.sh || true
-
-        touch /appdata/settings.yml
-        chown 1000:1000 /appdata/settings.yml || true
-
-        if [ ! -f /data/node/bitcoin.conf ]; then
-          envsubst < /data/templates/bitcoin.conf.template > /data/node/bitcoin.conf
-          chown -R 1000:1000 /data/node
-        fi
-
-        if [ ! -f /data/pool/config/ckpool.conf ]; then
-          envsubst < /data/templates/ckpool.conf.template > /data/pool/config/ckpool.conf
-          chown -R 1000:1000 /data/pool
-        fi
-
-  bchn:
-    build:
-      context: ./services/bchn
-    user: "1000:1000"
-    restart: unless-stopped
-    stop_grace_period: 15m30s
-    depends_on:
-      init:
-        condition: service_completed_successfully
-    ports:
-      - "28333:28333/tcp"
-    volumes:
-      - ${APP_DATA_DIR}/data/node:/data
-      - ${APP_DATA_DIR}/data/templates/bchn-entrypoint.sh:/bchn-entrypoint.sh:ro
-    entrypoint: ["/bin/sh", "/bchn-entrypoint.sh"]
     healthcheck:
       test: ["CMD-SHELL", "bitcoin-cli -datadir=/data getblockchaininfo >/dev/null 2>&1"]
       interval: 30s
@@ -87,21 +38,6 @@ services:
   ckpool:
     build:
       context: ./services/ckpool
-    entrypoint: ["/bin/sh"]
-    command:
-      - -ec
-      - |-
-        rm -f /tmp/ckpool/*.pid 2>/dev/null || true
-        if command -v ckpool >/dev/null 2>&1; then
-          exec ckpool -k -B -L -c /config/ckpool.conf
-        elif [ -x /bin/ckpool ]; then
-          exec /bin/ckpool -k -B -L -c /config/ckpool.conf
-        elif [ -x /usr/bin/ckpool ]; then
-          exec /usr/bin/ckpool -k -B -L -c /config/ckpool.conf
-        else
-          echo "ckpool binary not found in image"
-          exit 1
-        fi
     user: "1000:1000"
     depends_on:
       - bchn
@@ -110,8 +46,15 @@ services:
     ports:
       - "4633:3333/tcp"
     volumes:
-      - ${APP_DATA_DIR}/data/pool/config:/config:ro
+      - ${APP_DATA_DIR}/data/pool/config:/config
       - ${APP_DATA_DIR}/data/pool/www:/www
+      - ./data/templates:/templates:ro
+    environment:
+      RPC_USER: "bch"
+      RPC_PASSWORD: "${APP_PASSWORD}"
+      BCH_RPC_PORT: "28332"
+      BCH_ZMQ_HASHBLOCK_PORT: "28334"
+      PAYOUT_ADDRESS: "CHANGEME_BCH_PAYOUT_ADDRESS"
 
   app:
     build:

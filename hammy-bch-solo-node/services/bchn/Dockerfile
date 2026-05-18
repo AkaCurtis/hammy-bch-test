@@ -22,10 +22,14 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates libevent-2.1-7 libboost-system1.74.0 libboost-filesystem1.74.0 \
     libboost-chrono1.74.0 libboost-thread1.74.0 libminiupnpc17 libzmq5 openssl \
-    libdb5.3++ && \
+    libdb5.3++ gettext-base && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/bchn /opt/bchn
+COPY entrypoint.sh /usr/local/bin/bchn-entrypoint.sh
 ENV PATH="/opt/bchn/bin:${PATH}"
 
+RUN chmod 755 /usr/local/bin/bchn-entrypoint.sh
+
 USER 1000:1000
+ENTRYPOINT ["/usr/local/bin/bchn-entrypoint.sh"]
