@@ -18,10 +18,10 @@ description: >-
     - URL: `stratum+tcp://<your-host-ip>:4633`
     - Username: `workername` or `walletAddress.workername`
     - Password: anything
-developer: OpenAI
-website: https://github.com/your-org/bch-solo-node
-repo: https://github.com/your-org/bch-solo-node
-support: https://github.com/your-org/bch-solo-node/issues
+developer: AkaCurtis
+website: https://github.com/AkaCurtis/hammy-bch-test
+repo: https://github.com/AkaCurtis/hammy-bch-test
+support: https://github.com/AkaCurtis/hammy-bch-test/issues
 dependencies: []
 port: 21212
 icon: icon.svg
