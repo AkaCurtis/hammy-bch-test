@@ -16,14 +16,8 @@ RUN git ls-remote --heads --tags ${BCHN_REPO} ${BCHN_REF} && \
 RUN if grep -q "add_subdirectory(qt)" src/CMakeLists.txt; then \
       sed -i '/add_subdirectory(qt)/c\if(BUILD_GUI)\n  add_subdirectory(qt)\nendif()' src/CMakeLists.txt; \
     fi && \
-    if grep -q "add_subdirectory(test)" src/CMakeLists.txt; then \
-      sed -i '/add_subdirectory(test)/c\if(BUILD_TESTS)\n  add_subdirectory(test)\nendif()' src/CMakeLists.txt; \
-    fi && \
     if [ -f src/qt/CMakeLists.txt ]; then \
       sed -i '1i if(NOT BUILD_GUI)\n  return()\nendif()\n' src/qt/CMakeLists.txt; \
-    fi && \
-    if [ -f src/test/CMakeLists.txt ]; then \
-      sed -i '1i if(NOT BUILD_TESTS)\n  return()\nendif()\n' src/test/CMakeLists.txt; \
     fi
 RUN cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
@@ -41,7 +35,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates libevent-2.1-7 libboost-system1.74.0 libboost-filesystem1.74.0 \
     libboost-chrono1.74.0 libboost-thread1.74.0 libminiupnpc17 libnatpmp1 libzmq5 openssl \
-    libgmp10 gettext-base && \
+    libgmp10 libgmpxx4ldbl gettext-base && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/bchn /opt/bchn

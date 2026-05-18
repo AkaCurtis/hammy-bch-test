@@ -2,7 +2,7 @@ manifestVersion: 1
 id: hammy-bch-solo-node
 category: bitcoin
 name: BCH Solo Node
-version: '0.3.1'
+version: '0.3.2'
 tagline: BCH node + solo pool
 description: >-
   Run a Bitcoin Cash full node and integrated solo ckpool stack with a clean,

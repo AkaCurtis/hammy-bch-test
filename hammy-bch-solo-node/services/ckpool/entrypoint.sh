@@ -15,11 +15,11 @@ fi
 rm -f /tmp/ckpool/*.pid 2>/dev/null || true
 
 if command -v ckpool >/dev/null 2>&1; then
-  exec ckpool -k -B -L -c /config/ckpool.conf
+  exec ckpool -k -L -c /config/ckpool.conf
 elif [ -x /bin/ckpool ]; then
-  exec /bin/ckpool -k -B -L -c /config/ckpool.conf
+  exec /bin/ckpool -k -L -c /config/ckpool.conf
 elif [ -x /usr/bin/ckpool ]; then
-  exec /usr/bin/ckpool -k -B -L -c /config/ckpool.conf
+  exec /usr/bin/ckpool -k -L -c /config/ckpool.conf
 else
   echo "ckpool binary not found in image"
   exit 1
