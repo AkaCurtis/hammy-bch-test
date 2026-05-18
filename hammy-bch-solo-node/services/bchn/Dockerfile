@@ -6,7 +6,7 @@ ARG BCHN_REF=master
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git build-essential cmake ninja-build pkg-config python3 bison \
     libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
-    libboost-thread-dev libminiupnpc-dev libnatpmp-dev libzmq3-dev libssl-dev libgmp-dev \
+    libboost-thread-dev libboost-test-dev libminiupnpc-dev libnatpmp-dev libzmq3-dev libssl-dev libgmp-dev \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
