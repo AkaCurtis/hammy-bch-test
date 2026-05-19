@@ -24,8 +24,6 @@ RUN cmake -S . -B build -GNinja \
     -DCMAKE_INSTALL_PREFIX=/opt/bchn \
     -DBUILD_BITCOIN_WALLET=OFF \
     -DBUILD_GUI=OFF \
-    -DBUILD_TESTS=OFF \
-    -DBUILD_BENCH=OFF \
     -DENABLE_MAN=OFF && \
     cmake --build build && \
     cmake --install build
