@@ -18,6 +18,12 @@ RUN if grep -q "add_subdirectory(qt)" src/CMakeLists.txt; then \
     fi && \
     if [ -f src/qt/CMakeLists.txt ]; then \
       sed -i '1i if(NOT BUILD_GUI)\n  return()\nendif()\n' src/qt/CMakeLists.txt; \
+    fi && \
+    if [ -f src/test/CMakeLists.txt ]; then \
+      sed -i '1i if(NOT BUILD_TESTS)\n  return()\nendif()\n' src/test/CMakeLists.txt; \
+    fi && \
+    if [ -f src/bench/CMakeLists.txt ]; then \
+      sed -i '1i if(NOT BUILD_BENCH)\n  return()\nendif()\n' src/bench/CMakeLists.txt; \
     fi
 RUN cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
