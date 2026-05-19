@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git build-essential cmake ninja-build pkg-config python3 bison \
     libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
     libboost-thread-dev libboost-test-dev libminiupnpc-dev libnatpmp-dev libzmq3-dev \
-    libssl-dev libgmp-dev libdb++-dev libsqlite3-dev \
+    libssl-dev libgmp-dev libdb++-dev libsqlite3-dev zlib1g-dev \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
@@ -21,6 +21,10 @@ RUN cmake -S . -B build -GNinja \
     -DBUILD_BITCOIN_WALLET=OFF \
     -DBUILD_BITCOIN_QT=OFF \
     -DENABLE_MAN=OFF
+
+RUN cmake --build build
+
+RUN cmake --install build
 
 RUN echo "=== Starting build ===" && \
     cmake --build build
