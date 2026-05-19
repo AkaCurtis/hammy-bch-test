@@ -13,14 +13,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /src
 RUN git ls-remote --heads --tags ${BCHN_REPO} ${BCHN_REF} && \
-    git clone --depth 1 --branch ${BCHN_REF} ${BCHN_REPO} .
+    git clone --depth 1 --branch ${BCHN_REF} ${BCHN_REPO} . && \
+    ls -la && \
+    echo "=== CMake version ===" && \
+    cmake --version
 
 RUN echo "=== Starting CMake configuration ===" && \
     cmake -S . -B build -GNinja \
+    --debug-output \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/opt/bchn \
     -DBUILD_BITCOIN_WALLET=OFF \
-    -DENABLE_MAN=OFF
+    -DBUILD_BITCOIN_QT=OFF \
+    -DENABLE_MAN=OFF || \
+    (echo "CMake configuration failed. Checking for CMakeLists.txt:" && \
+     ls -la CMakeLists.txt && \
+     cat CMakeLists.txt | head -50 && \
+     exit 1)
 
 RUN echo "=== Starting build ===" && \
     cmake --build build
