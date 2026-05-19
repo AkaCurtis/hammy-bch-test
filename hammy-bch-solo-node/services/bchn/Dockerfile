@@ -6,25 +6,20 @@ ARG BCHN_REF=v29.0.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git build-essential cmake ninja-build pkg-config python3 bison \
     libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev \
-    libboost-thread-dev libboost-test-dev libminiupnpc-dev libnatpmp-dev libzmq3-dev libssl-dev libgmp-dev \
+    libboost-thread-dev libboost-test-dev libminiupnpc-dev libnatpmp-dev libzmq3-dev \
+    libssl-dev libgmp-dev libdb++-dev libsqlite3-dev \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 RUN git ls-remote --heads --tags ${BCHN_REPO} ${BCHN_REF} && \
     git clone --depth 1 --branch ${BCHN_REF} ${BCHN_REPO} .
-RUN if grep -q "add_subdirectory(qt)" src/CMakeLists.txt; then \
-      sed -i '/add_subdirectory(qt)/c\if(BUILD_GUI)\n  add_subdirectory(qt)\nendif()' src/CMakeLists.txt; \
-    fi && \
-    if [ -f src/qt/CMakeLists.txt ]; then \
-      sed -i '1i if(NOT BUILD_GUI)\n  return()\nendif()\n' src/qt/CMakeLists.txt; \
-    fi
+
 RUN echo "=== Starting CMake configuration ===" && \
     cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/opt/bchn \
     -DBUILD_BITCOIN_WALLET=OFF \
-    -DBUILD_GUI=OFF \
     -DENABLE_MAN=OFF
 
 RUN echo "=== Starting build ===" && \
