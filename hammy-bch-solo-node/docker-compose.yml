@@ -24,6 +24,8 @@ services:
       BCH_P2P_PORT: "28333"
       BCH_RPC_PORT: "28332"
       BCH_ZMQ_HASHBLOCK_PORT: "28334"
+    networks:
+      - umbrel_main_network
     healthcheck:
       test: ["CMD-SHELL", "bitcoin-cli -datadir=/data getblockchaininfo >/dev/null 2>&1"]
       interval: 30s
@@ -47,10 +49,12 @@ services:
     environment:
       RPC_USER: "bch"
       RPC_PASSWORD: "${APP_PASSWORD}"
-      BCH_RPC_HOST: "hammy-bch-solo-node_bchn_1"
+      BCH_RPC_HOST: "bchn"
       BCH_RPC_PORT: "28332"
       BCH_ZMQ_HASHBLOCK_PORT: "28334"
       PAYOUT_ADDRESS: "CHANGEME_BCH_PAYOUT_ADDRESS"
+    networks:
+      - umbrel_main_network
 
   app:
     image: ghcr.io/akacurtis/hammy-bch-solo-node-web:0.3.0
@@ -61,7 +65,7 @@ services:
       - ${APP_DATA_DIR}/data:/data
     environment:
       NETWORK_IP: "${NETWORK_IP}"
-      BCH_RPC_HOST: "hammy-bch-solo-node_bchn_1"
+      BCH_RPC_HOST: "bchn"
       BCH_RPC_PORT: "28332"
       BCH_RPC_USER: "bch"
       BCH_RPC_PASS: "${APP_PASSWORD}"
@@ -75,6 +79,8 @@ services:
       STATIC_DIR: "/app/static"
       SUPPORT_CHECKIN_URL: ""
       SUPPORT_TICKET_URL: ""
+    networks:
+      - umbrel_main_network
 
 networks:
   umbrel_main_network:
