@@ -17,7 +17,7 @@ on:
       bchn_ref:
         description: "Bitcoin Cash Node ref to build"
         required: true
-        default: "v28.0.0"
+        default: "v28.0.1"
 
 permissions:
   contents: read
@@ -46,7 +46,7 @@ jobs:
             version="${GITHUB_REF_NAME#v}"
             echo "version=$version" >> "$GITHUB_OUTPUT"
             echo "git_ref=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-            echo "bchn_ref=v28.0.0" >> "$GITHUB_OUTPUT"
+            echo "bchn_ref=v28.0.1" >> "$GITHUB_OUTPUT"
           fi
 
   publish:
