@@ -1,7 +1,7 @@
 FROM debian:bookworm AS build
 
 ARG BCHN_REPO=https://gitlab.com/bitcoin-cash-node/bitcoin-cash-node.git
-ARG BCHN_REF=v27.1.0
+ARG BCHN_REF=v29.0.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git build-essential cmake ninja-build pkg-config python3 bison \
@@ -19,13 +19,18 @@ RUN if grep -q "add_subdirectory(qt)" src/CMakeLists.txt; then \
     if [ -f src/qt/CMakeLists.txt ]; then \
       sed -i '1i if(NOT BUILD_GUI)\n  return()\nendif()\n' src/qt/CMakeLists.txt; \
     fi
-RUN cmake -S . -B build -GNinja \
+RUN echo "=== Starting CMake configuration ===" && \
+    cmake -S . -B build -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/opt/bchn \
     -DBUILD_BITCOIN_WALLET=OFF \
     -DBUILD_GUI=OFF \
-    -DENABLE_MAN=OFF && \
-    cmake --build build && \
+    -DENABLE_MAN=OFF
+
+RUN echo "=== Starting build ===" && \
+    cmake --build build
+
+RUN echo "=== Starting install ===" && \
     cmake --install build
 
 FROM debian:bookworm-slim
