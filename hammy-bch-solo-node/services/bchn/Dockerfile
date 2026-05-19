@@ -26,18 +26,12 @@ RUN cmake --build build
 
 RUN cmake --install build
 
-RUN echo "=== Starting build ===" && \
-    cmake --build build
-
-RUN echo "=== Starting install ===" && \
-    cmake --install build
-
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates libevent-2.1-7 libboost-system1.74.0 libboost-filesystem1.74.0 \
     libboost-chrono1.74.0 libboost-thread1.74.0 libminiupnpc17 libnatpmp1 libzmq5 openssl \
-    libgmp10 libgmpxx4ldbl gettext-base && \
+    libgmp10 libgmpxx4ldbl gettext-base zlib1g && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /opt/bchn /opt/bchn
