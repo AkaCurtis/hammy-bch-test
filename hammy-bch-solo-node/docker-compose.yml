@@ -47,6 +47,7 @@ services:
     environment:
       RPC_USER: "bch"
       RPC_PASSWORD: "${APP_PASSWORD}"
+      BCH_RPC_HOST: "hammy-bch-solo-node_bchn_1"
       BCH_RPC_PORT: "28332"
       BCH_ZMQ_HASHBLOCK_PORT: "28334"
       PAYOUT_ADDRESS: "CHANGEME_BCH_PAYOUT_ADDRESS"
@@ -60,7 +61,7 @@ services:
       - ${APP_DATA_DIR}/data:/data
     environment:
       NETWORK_IP: "${NETWORK_IP}"
-      BCH_RPC_HOST: "bchn"
+      BCH_RPC_HOST: "hammy-bch-solo-node_bchn_1"
       BCH_RPC_PORT: "28332"
       BCH_RPC_USER: "bch"
       BCH_RPC_PASS: "${APP_PASSWORD}"

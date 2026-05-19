@@ -1,7 +1,7 @@
 {
   "btcd": [
     {
-      "url": "bchn:${BCH_RPC_PORT}",
+      "url": "${BCH_RPC_HOST}:${BCH_RPC_PORT}",
       "auth": "${RPC_USER}",
       "pass": "${RPC_PASSWORD}",
       "notify": true
@@ -15,5 +15,5 @@
   "logdir": "/www",
   "webdir": "/www/pool",
   "userdir": "/www/users",
-  "zmqblock": "tcp://bchn:${BCH_ZMQ_HASHBLOCK_PORT}"
+  "zmqblock": "tcp://${BCH_RPC_HOST}:${BCH_ZMQ_HASHBLOCK_PORT}"
 }
